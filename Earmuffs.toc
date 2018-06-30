@@ -1,0 +1,16 @@
+## Interface: 60200
+## Title: Earmuffs
+## Notes: Don't want to hear some NPCs that won't shut up? Will NPCs (or players) just not stop yelling? You need Earmuffs!
+## Author: Drazisil <jwbecher@drazisil.com>
+## Version: 1.2
+## X-Curse-Packaged-Version: v1.0.1
+## X-Curse-Project-Name: Earmuffs
+## X-Curse-Project-ID: earmuffs
+## X-Curse-Repository-ID: wow/earmuffs/mainline
+
+## SavedVariables: EarmuffsDB
+
+embeds.xml
+Localization.lua
+Earmuffs.lua
+EarmuffsOptions.lua
