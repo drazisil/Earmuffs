@@ -3,6 +3,9 @@
 
 -- Create the Ace3 addon
 Earmuffs = LibStub("AceAddon-3.0"):NewAddon("Earmuffs", "AceConsole-3.0", "AceEvent-3.0")
+local addon	= LibStub("AceAddon-3.0"):GetAddon("Earmuffs")
+
+local wipe = wipe
 
 -- Options table
 Earmuffs.slash = {
@@ -21,12 +24,6 @@ Earmuffs.slash = {
             name = 'Reload',
             desc = 'reload the NPC list from defaults',
             func = 'reloadDB',
-        },
-        status = {
-            type = 'execute',
-            name = 'Status',
-            desc = 'display the current status',
-            func = 'displayStatus',
         },
     },
 }
@@ -87,39 +84,22 @@ AceConfig:RegisterOptionsTable("EarmuffsOptions", Earmuffs.options, nil)
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 AceConfigDialog:AddToBlizOptions("EarmuffsOptions", "Earmuffs")
 
-function Earmuffs:displayStatus()
-    Earmuffs:Print("Status is currently: "..tostring(Earmuffs.db.global.enabled))end
-
-function Earmuffs:OnInitialize()
+function addon:OnInitialize()
   -- Code that you want to run when the addon is first loaded goes here.
   
-  Earmuffs.db = LibStub("AceDB-3.0"):New("EarmuffsDB")
-  
-  -- Set defaults
-  if self.db.global.enabled == nil then 
-    self.db.global.emabled = true 
-  end
-  
-  if self.db.global.blockSayNPC == nil then 
-    self.db.global.blockSayNPC = true 
-  end
-  
-  if self.db.global.blockYellsNPC == nil then 
-    self.db.global.blockYellsNPC = true 
-  end
-  
-  if self.db.global.blockYellsPlayer == nil then 
-    self.db.global.blockYellsPlayer = false 
-  end
+  self.db = LibStub("AceDB-3.0"):New("EarmuffsDB")
 
-  
-  -- Create the table to hold the npcs we want to block says for
-  if Earmuffs.db.global.tableNPCs == nil 
-    or Earmuffs.db.global.tableNPCs.getn == nil then
+  self.db:RegisterDefaults({
+    global = {
+      blockSayNPC = true,
+      blockYellsNPC = true,
+      blockYellsPlayer = false,
+      tableNPCs = {},
+    }
+  })
     
-    Earmuffs.db.global.tableNPCs = {};
-    Earmuffs.createTableFromDefaults()
-  end
+  self:createTableFromDefaults()
+
   
   -- add chat filter for npc says
   ChatFrame_AddMessageEventFilter("CHAT_MSG_MONSTER_SAY", Earmuffs_MsgFilter);
@@ -130,20 +110,22 @@ function Earmuffs:OnInitialize()
 
 end
 
-function Earmuffs:OnEnable()
+function addon:OnEnable()
     -- Called when the addon is enabled
 end
 
-function Earmuffs:OnDisable()
+function addon:OnDisable()
     -- Called when the addon is disabled
 end
 
 --------------------------------------------------------------------------------
 -- Initialize the npcSay table
-function Earmuffs.createTableFromDefaults()
+function addon:createTableFromDefaults()
 
+  local t = addon.db.global.tableNPCs
+  
   -- Reset the table
-  local t = {};
+  wipe(self.db.global.tableNPCs)
 
   -- Populate the tblNpcSay table
 
@@ -169,29 +151,27 @@ function Earmuffs.createTableFromDefaults()
   
   --Garrison NPCs
   table.insert(t, "Scout Valdez");
-  
-  Earmuffs.db.global.tableNPCs = t
 
 end
 
-function Earmuffs:dumpDB()
+function addon:dumpDB()
 
-   for i,npc in ipairs(Earmuffs.db.global.tableNPCs) do
-        Earmuffs:Print(npc);
+   for i,npc in ipairs(self.db.global.tableNPCs) do
+        self:Print(npc);
    end
 end
 
-function Earmuffs:reloadDB()
+function addon:reloadDB()
 
   self:createTableFromDefaults()
   self:Print("NPC database reloaded")
 end
 
-function Earmuffs:getOption(info)
+function addon:getOption(info)
   return self.db.global[info[#info]]
 end
 
-function Earmuffs:setOption(info, value)
+function addon:setOption(info, value)
   --message(tostring(info).." "..tostring(value))
   self.db.global[info[#info]] = value
 end
@@ -201,8 +181,8 @@ function Earmuffs_MsgFilter(self, event, msg, author, ...)
   --message("Earmuffs: "..author);
     -- print the lines
     if event == "CHAT_MSG_MONSTER_SAY" 
-      and Earmuffs.db.global.blockSayNPC == true then 
-      for i,npc in ipairs(Earmuffs.db.global.tableNPCs) do
+      and addon.db.global.blockSayNPC == true then 
+      for i,npc in ipairs(addon.db.global.tableNPCs) do
         if author == npc then 
           return true
         end
@@ -212,13 +192,13 @@ function Earmuffs_MsgFilter(self, event, msg, author, ...)
       
     -- Block all yells from NPCs
     if event == "CHAT_MSG_MONSTER_YELL" 
-      and Earmuffs.db.global.blockYellsNPC == true then 
+      and addon.db.global.blockYellsNPC == true then 
         return true
     end
     
     -- Block all yells from players
     if event == "CHAT_MSG_YELL" 
-      and Earmuffs.db.global.blockYellsPlayer == true then 
+      and addon.db.global.blockYellsPlayer == true then 
         return true
     end
 end

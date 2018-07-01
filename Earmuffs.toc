@@ -3,7 +3,6 @@
 ## Notes: Don't want to hear some NPCs that won't shut up? Will NPCs (or players) just not stop yelling? You need Earmuffs!
 ## Author: Drazisil <jwbecher@drazisil.com>
 ## Version: 1.3
-## Dependencies: LibStub, Ace3
 ## X-Curse-Packaged-Version: v1.0.1
 ## X-Curse-Project-Name: Earmuffs
 ## X-Curse-Project-ID: earmuffs
@@ -14,4 +13,3 @@
 embeds.xml
 Localization.lua
 Earmuffs.lua
-EarmuffsOptions.lua
