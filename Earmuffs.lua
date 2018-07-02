@@ -66,12 +66,13 @@ Earmuffs.options = {
           order	= 4,
           type	= "header",
           name	= "Misc",
-				},
-				moo = {
+        },
+        addItem = {
           order	= 5,
-          type	= "description",
-          name	= "Moo!",
-				},
+          type	= "execute",
+          func = "toggleNPCList",
+          name	= "Toggle NPC List",
+        },
       },
     },
   },
@@ -83,6 +84,37 @@ AceConfig:RegisterOptionsTable("Earmuffs", Earmuffs.slash, {"earmuffs"})
 AceConfig:RegisterOptionsTable("EarmuffsOptions", Earmuffs.options, nil)
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 AceConfigDialog:AddToBlizOptions("EarmuffsOptions", "Earmuffs")
+
+-- Create NPC list frame
+local npcListFrame = CreateFrame("FRAME", "npcList", InsetFrameTemplate)
+npcListFrame:SetPoint("CENTER")
+npcListFrame:SetFrameStrata("DIALOG")
+npcListFrame:SetSize(640, 480)
+npcListFrame:SetBackdrop({ 
+  bgFile = "Interface\\FrameGeneral\\UI-Background-Rock", 
+  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+  title = true
+})
+npcListFrame:SetMovable(true)
+npcListFrame:EnableMouse(true)
+npcListFrame:RegisterForDrag("LeftButton")
+npcListFrame:SetScript("OnDragStart", npcListFrame.StartMoving)
+npcListFrame:SetScript("OnDragStop", npcListFrame.StopMovingOrSizing)
+npcListFrame:SetClampedToScreen(true)
+
+
+-- Create the UI for the NPM list frame
+local closeFrameButton = CreateFrame("Button", "closeFrameBtn", npcListFrame, "UIPanelButtonTemplate")
+closeFrameButton:SetText("Close")
+closeFrameButton:SetPoint( "BOTTOMRIGHT")
+closeFrameButton:SetScript("OnClick", function (self, button, down)
+  npcListFrame:Hide()
+ end)
+ closeFrameButton:SetSize(131, 21)
+
+
+--  Hide the complete frame
+npcListFrame:Hide()
 
 function addon:OnInitialize()
   -- Code that you want to run when the addon is first loaded goes here.
@@ -159,6 +191,16 @@ function addon:dumpDB()
    for i,npc in ipairs(self.db.global.tableNPCs) do
         self:Print(npc);
    end
+end
+
+function addon:toggleNPCList()
+
+  if npcListFrame:IsVisible() then
+    npcListFrame:Hide()
+else
+  npcListFrame:Show()
+end
+
 end
 
 function addon:reloadDB()
